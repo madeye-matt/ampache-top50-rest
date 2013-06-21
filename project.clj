@@ -5,7 +5,10 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [
       [org.clojure/clojure "1.5.1"]
-      [com.madeye.clojure.common/common "0.1.1"] 
-      [com.madeye.clojure.ampache/ampachedb "0.1.3"]
+      [com.madeye.clojure.common/common "0.1.2"] 
+      [com.madeye.clojure.ampache/ampachedb "0.1.4"]
+      [ring "1.2.0-RC1"]
+      [compojure "1.1.5"]
+      [enlive "1.1.1"]
   ]
   :main com.madeye.clojure.ampache.top100)
