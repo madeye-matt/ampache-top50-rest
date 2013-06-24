@@ -8,22 +8,27 @@
 (require '[clojure.xml :as xml])
 (require '[clj-time.core :as tm])
 (require '[clj-time.local :as tloc])
-(require '[clj-time.format :as tfmt])
+(require '[clj-time.format :as tfmt]) 
+
 (require '[ring.adapter.jetty :as jetty :only (run-jetty)])
+(require '[clojure.data.json :as json])
 
 (require '[com.madeye.clojure.common.common :as c])
 (require '[com.madeye.clojure.ampache.ampachedb :as adb])
 
 (defn reload [] (use :reload-all 'com.madeye.clojure.ampache.top100))
 
-;(defn app
-;  [{:keys [uri]}]
-;  {:body (format "You requested %s" uri)})
-
-;(def server (run-jetty #'app {:port 8080 :join? false}))
+(defn top-tracks
+  "Default 'top tracks' function"
+  []
+  { :status 200
+    :body (json/write-str (adb/top-result (c/get-date-range :last_month) adb/group-song 10))
+  }
+)
 
 (defroutes app*
     (GET "/" request "Welcome!")
+    (GET "/top-tracks" [] (top-tracks))
 )
 
 (def app (compojure.handler/api app*))

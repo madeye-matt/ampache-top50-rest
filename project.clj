@@ -6,9 +6,10 @@
   :dependencies [
       [org.clojure/clojure "1.5.1"]
       [com.madeye.clojure.common/common "0.1.2"] 
-      [com.madeye.clojure.ampache/ampachedb "0.1.4"]
+      [com.madeye.clojure.ampache/ampachedb "0.1.5"]
       [ring "1.2.0-RC1"]
       [compojure "1.1.5"]
-      [enlive "1.1.1"]
+      [org.clojure/data.json "0.2.2"]
+;     [enlive "1.1.1"]
   ]
   :main com.madeye.clojure.ampache.top100)
