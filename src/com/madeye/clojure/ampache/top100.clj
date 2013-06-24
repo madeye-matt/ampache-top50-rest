@@ -9,6 +9,7 @@
 (require '[clj-time.core :as tm])
 (require '[clj-time.local :as tloc])
 (require '[clj-time.format :as tfmt])
+(require '[ring.adapter.jetty :as jetty :only (run-jetty)])
 
 (require '[com.madeye.clojure.common.common :as c])
 (require '[com.madeye.clojure.ampache.ampachedb :as adb])
@@ -27,5 +28,19 @@
 
 (def app (compojure.handler/api app*))
 
-(defn startserver [] (run-jetty #'app {:port 8080 :join? false}))
+(defn startserver [port] (jetty/run-jetty #'app {:port port :join? false}))
 
+(defn initialise 
+  "Initialisation function - initialises database and starts Jetty server"
+  [config-file]
+  (def config (c/load-props config-file))
+  (def server-port (read-string (config :server-port)))
+  (adb/initialise config-file)
+  (startserver server-port)
+)
+
+(defn -main
+  "Main functinn"
+  [config-file]
+  (initialise config-file)
+)
