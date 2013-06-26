@@ -19,17 +19,24 @@
 
 (declare default-top server-port)
 
-(defn reload [] (use :reload-all 'com.madeye.clojure.ampache.top100))
+(defn- reload [] (use :reload-all 'com.madeye.clojure.ampache.top100))
 
-(defn top-results
-  "Default 'top tracks' function"
-  [group-fn date-range num-results]
-  { :status 200
-    :body (json/write-str (adb/top-result date-range group-fn num-results))
+(defn- json-response-map
+  "Returns a response map with the specified status and the body parameter JSONified"
+  [status body]
+  { :status status
+    :headers { "Content-Type" "applciation/json" }
+    :body (json/write-str body)
   }
 )
 
-(defn get-num-results
+(defn- top-results
+  "Default 'top tracks' function"
+  [group-fn date-range num-results]
+  (json-response-map 200 (adb/top-result date-range group-fn num-results))
+)
+
+(defn- get-num-results
   "Gets number of results query map (assumes a string) or returns default top"
   [params]
   (if-let [numResults (params "num" )]
@@ -38,7 +45,7 @@
   )
 )
 
-(defn get-date-range
+(defn- get-date-range
   "Gets a date range from either the 'period' parameter (last-week last-month or ever) or the 'start' and 'end' parameters"
   [params]
   (case (params "period")
@@ -55,23 +62,23 @@
 
 (defroutes app*
     (GET "/" request "Welcome!")
-    (GET "/song-play" {params :query-params} (top-results adb/group-song (get-date-range params) (get-num-results params)))
-    (GET "/album-play" {params :query-params} (top-results adb/group-album (get-date-range params) (get-num-results params)))
-    (GET "/artist-play" {params :query-params} (top-results adb/group-artist (get-date-range params) (get-num-results params)))
+    (GET "/top-songs" {params :query-params} (top-results adb/group-song (get-date-range params) (get-num-results params)))
+    (GET "/top-albums" {params :query-params} (top-results adb/group-album (get-date-range params) (get-num-results params)))
+    (GET "/top-artists" {params :query-params} (top-results adb/group-artist (get-date-range params) (get-num-results params)))
 )
 
 (def app (compojure.handler/api app*))
 
-(defn startserver [port] (jetty/run-jetty #'app {:port port :join? false}))
+(defn- startserver [port] (jetty/run-jetty #'app {:port port :join? false}))
 
-(defn initialise 
+(defn- initialise 
   "Initialisation function - initialises database and starts Jetty server"
   [config-file]
   (def config (c/load-props config-file))
   (def server-port (read-string (config :server-port)))
   (def default-top (read-string (config :default-top)))
   (adb/initialise config-file)
-  (startserver server-port)
+  (def server (startserver server-port))
 )
 
 (defn -main
