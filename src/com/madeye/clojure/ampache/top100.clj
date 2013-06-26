@@ -32,8 +32,8 @@
 
 (defn- top-results
   "Default 'top tracks' function"
-  [group-fn date-range num-results]
-  (json-response-map 200 (adb/top-result date-range group-fn num-results))
+  [filters group-fn num-results]
+  (json-response-map 200 (adb/top-result filters group-fn num-results))
 )
 
 (defn- get-num-results
@@ -45,26 +45,50 @@
   )
 )
 
-(defn- get-date-range
+(defn- get-period-filter
   "Gets a date range from either the 'period' parameter (last-week last-month or ever) or the 'start' and 'end' parameters"
-  [params]
+  [params filters]
   (case (params "period")
     "last-week"
-      (c/get-date-range :last_week)
+      (conj filters (c/get-date-range :last_week))
     "last-month"
-      (c/get-date-range :last_month)
+      (conj filters (c/get-date-range :last_month))
     "ever"
-      (c/get-date-range :all_time)
+      (conj filters (c/get-date-range :all_time))
     nil
-      (c/get-date-range :last_month)
+      (conj filters (c/get-date-range :last_month))
   )
+)
+
+(defn- get-artist-filter
+  "Adds a filter on the specified artist to the supplied map"
+  [params filters]
+  (if-let [artistid (params "artist")]
+    (conj filters { :artist (read-string artistid) })
+    filters
+  )
+)
+
+(defn- get-album-filter
+  "Adds a filter on the specified album to the supplied map"
+  [params filters]
+  (if-let [albumid (params "album")]
+    (conj filters { :album (read-string albumid) })
+    filters
+  )
+)
+
+(defn- get-filters
+  "Gets the aggregate of all the specified filters from the params map"
+  ([params] (get-filters params {}))
+  ([params filters] (get-period-filter params (get-artist-filter params (get-album-filter params filters))))
 )
 
 (defroutes app*
     (GET "/" request "Welcome!")
-    (GET "/top-songs" {params :query-params} (top-results adb/group-song (get-date-range params) (get-num-results params)))
-    (GET "/top-albums" {params :query-params} (top-results adb/group-album (get-date-range params) (get-num-results params)))
-    (GET "/top-artists" {params :query-params} (top-results adb/group-artist (get-date-range params) (get-num-results params)))
+    (GET "/top-songs" {params :query-params} (top-results (get-filters params) adb/group-song (get-num-results params)))
+    (GET "/top-albums" {params :query-params} (top-results (get-filters params) adb/group-album (get-num-results params)))
+    (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist (get-num-results params)))
 )
 
 (def app (compojure.handler/api app*))
