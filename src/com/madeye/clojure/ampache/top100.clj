@@ -19,21 +19,41 @@
 
 (declare default-top server-port)
 
+(def date-formatter (tfmt/formatter "yyyy-MM-dd HH:mm:ss"))
+
 (defn- reload [] (use :reload-all 'com.madeye.clojure.ampache.top100))
+
+(defn- translate-json-values
+  "Translates any difficult values in the JSON e.g. date-time"
+  [k value]
+  (case k
+    :start
+      (tfmt/unparse date-formatter value)
+    :end
+      (tfmt/unparse date-formatter value)
+    value
+  )
+)
 
 (defn- json-response-map
   "Returns a response map with the specified status and the body parameter JSONified"
   [status body]
   { :status status
     :headers { "Content-Type" "applciation/json" }
-    :body (json/write-str body)
+    :body (json/write-str body :value-fn translate-json-values)
   }
+)
+
+(defn- get-body
+  "Creates a body map based on the results and the filter set"
+  [filters result]
+  { :filters filters :result result }
 )
 
 (defn- top-results
   "Default 'top tracks' function"
   [filters group-fn num-results]
-  (json-response-map 200 (adb/top-result filters group-fn num-results))
+  (json-response-map 200 (get-body filters (adb/top-result filters group-fn num-results)))
 )
 
 (defn- get-num-results
