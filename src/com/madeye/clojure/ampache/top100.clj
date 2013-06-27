@@ -55,6 +55,11 @@
   [filters group-fn num-results]
   (json-response-map 200 (get-body filters (adb/top-result filters group-fn num-results)))
 )
+(defn- song-play-results
+  "Function for returning raw song plays in JSON"
+  [filters]
+  (json-response-map 200 (get-body filters (adb/find-song-listen filters)))
+)
 
 (defn- get-num-results
   "Gets number of results query map (assumes a string) or returns default top"
@@ -109,6 +114,7 @@
     (GET "/top-songs" {params :query-params} (top-results (get-filters params) adb/group-song (get-num-results params)))
     (GET "/top-albums" {params :query-params} (top-results (get-filters params) adb/group-album (get-num-results params)))
     (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist (get-num-results params)))
+    (GET "/song-plays" {params :query-params} (song-play-results (get-filters params)))
 )
 
 (def app (compojure.handler/api app*))
