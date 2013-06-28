@@ -16,7 +16,7 @@
 (require '[com.madeye.clojure.common.common :as c])
 (require '[com.madeye.clojure.ampache.ampachedb :as adb])
 
-(declare default-top server-port)
+(declare default-top server-port server)
 
 (def date-formatter (tfmt/formatter "yyyy-MM-dd HH:mm:ss"))
 (def date-parser (tfmt/formatter "yyyy-MM-dd"))
@@ -156,7 +156,7 @@
     (GET "/" request "Welcome!")
     (GET "/top-songs" {params :query-params} (top-results (get-filters params) adb/group-song song-clean-fn (get-num-results params)))
     (GET "/top-albums" {params :query-params} (top-results (get-filters params) adb/group-album album-clean-fn (get-num-results params)))
-    (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist artist-clean-fn (get-num-results params)))
+    (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist null-clean-fn (get-num-results params)))
     (GET "/song-plays" {params :query-params} (song-play-results (get-filters params)))
 )
 
