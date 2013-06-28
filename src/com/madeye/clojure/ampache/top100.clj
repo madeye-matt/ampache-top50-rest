@@ -11,7 +11,6 @@
 (require '[clj-time.format :as tfmt]) 
 
 (require '[ring.adapter.jetty :as jetty :only (run-jetty)])
-; (require '[ring.middleware.params :as params :only (wrap-params)])
 (require '[clojure.data.json :as json])
 
 (require '[com.madeye.clojure.common.common :as c])
@@ -20,8 +19,11 @@
 (declare default-top server-port)
 
 (def date-formatter (tfmt/formatter "yyyy-MM-dd HH:mm:ss"))
+(def date-parser (tfmt/formatter "yyyy-MM-dd"))
 
 (defn- reload [] (use :reload-all 'com.madeye.clojure.ampache.top100))
+
+(defn- restart [] ((.stop server) (reload) (.start server)))
 
 (defn- translate-json-values
   "Translates any difficult values in the JSON e.g. date-time"
@@ -47,14 +49,47 @@
 (defn- get-body
   "Creates a body map based on the results and the filter set"
   [filters result]
-  { :filters filters :result result }
+  { :filters filters :num-results (count result) :result result }
 )
 
+(defn- null-clean-fn
+  "Default function for cleaning results for display - just returns the supplied map"
+  [m]
+  m
+)
+
+(defn- global-clean-fn
+  "Function for cleaning results for display - should be applied to all types of result map" 
+  [m]
+  (dissoc m :type)
+)
+
+(defn- artist-clean-fn
+  "Function for cleaning entries unneccessary for display from the artist result map"
+  [m]
+  (dissoc (global-clean-fn m) :mbid)
+)
+ 
+(defn- album-clean-fn
+  "Function for cleaning entries unneccessary for display from the album result map"
+  [m]
+  (dissoc (global-clean-fn m) :disk :year :mbid)
+)
+ 
+(defn- song-clean-fn
+  "Function for cleaning entries unneccessary for display from the song result map"
+  [m]
+  (dissoc (global-clean-fn m) :enabled :rate :year :addition_time :size :bitrate :update_time :played :track :time :mode :file :mbid :catalog)
+)
+ 
 (defn- top-results
   "Default 'top tracks' function"
-  [filters group-fn num-results]
-  (json-response-map 200 (get-body filters (adb/top-result filters group-fn num-results)))
+  ([filters group-fn clean-fn num-results]
+  (json-response-map 200 (get-body filters (map clean-fn (adb/top-result filters group-fn num-results)))))
+  ([filters group-fn num-results]
+  (top-results filters group-fn null-clean-fn num-results))
 )
+
 (defn- song-play-results
   "Function for returning raw song plays in JSON"
   [filters]
@@ -81,7 +116,15 @@
     "ever"
       (conj filters (c/get-date-range :all_time))
     nil
-      (conj filters (c/get-date-range :last_month))
+      (if-let [startstr (params "start")]
+        (if-let [endstr (params "end")]
+          (conj filters { :start (tfmt/parse date-parser startstr) :end (tfmt/parse date-parser endstr) })
+          ; Default to "last month" if no period specified
+          (conj filters (c/get-date-range :last_month))
+        )
+        ; Default to "last month" if no period specified
+        (conj filters (c/get-date-range :last_month))
+      )
   )
 )
 
@@ -111,9 +154,9 @@
 
 (defroutes app*
     (GET "/" request "Welcome!")
-    (GET "/top-songs" {params :query-params} (top-results (get-filters params) adb/group-song (get-num-results params)))
-    (GET "/top-albums" {params :query-params} (top-results (get-filters params) adb/group-album (get-num-results params)))
-    (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist (get-num-results params)))
+    (GET "/top-songs" {params :query-params} (top-results (get-filters params) adb/group-song song-clean-fn (get-num-results params)))
+    (GET "/top-albums" {params :query-params} (top-results (get-filters params) adb/group-album album-clean-fn (get-num-results params)))
+    (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist artist-clean-fn (get-num-results params)))
     (GET "/song-plays" {params :query-params} (song-play-results (get-filters params)))
 )
 
