@@ -87,7 +87,7 @@
   ([filters group-fn clean-fn num-results]
   (json-response-map 200 (get-body filters (map clean-fn (adb/top-result filters group-fn num-results)))))
   ([filters group-fn num-results]
-  (top-results filters group-fn null-clean-fn num-results))
+  (top-results filters group-fn global-clean-fn num-results))
 )
 
 (defn- song-play-results
@@ -154,9 +154,9 @@
 
 (defroutes app*
     (GET "/" request "Welcome!")
-    (GET "/top-songs" {params :query-params} (top-results (get-filters params) adb/group-song song-clean-fn (get-num-results params)))
-    (GET "/top-albums" {params :query-params} (top-results (get-filters params) adb/group-album album-clean-fn (get-num-results params)))
-    (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist null-clean-fn (get-num-results params)))
+    (GET "/top-songs" {params :query-params} (top-results (get-filters params) adb/group-song (get-num-results params)))
+    (GET "/top-albums" {params :query-params} (top-results (get-filters params) adb/group-album (get-num-results params)))
+    (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist (get-num-results params)))
     (GET "/song-plays" {params :query-params} (song-play-results (get-filters params)))
 )
 
