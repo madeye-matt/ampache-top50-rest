@@ -1,4 +1,4 @@
-(defproject com.madeye.clojure.ampache/ampache-top100 "0.1.0"
+(defproject com.madeye.clojure.ampache/ampache-top100 "0.1.1"
   :description "A Clojure project for a REST interface to provide song play statistics for an Ampache server (for example, top 10 tracks of the last week or top 100 albums of all time)"
   :url "https://github.com/madeye-matt/ampache-top50-rest"
   :license {:name "Eclipse Public License"
