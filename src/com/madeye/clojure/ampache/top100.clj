@@ -21,6 +21,11 @@
 (def date-formatter (tfmt/formatter "yyyy-MM-dd HH:mm:ss"))
 (def date-parser (tfmt/formatter "yyyy-MM-dd"))
 
+(def ^:const ctx-top-songs "/top-songs")
+(def ^:const ctx-top-albums "/top-albums")
+(def ^:const ctx-top-artists "/top-artists")
+(def ^:const ctx-song-plays "/song-plays")
+
 (defn- reload [] (use :reload-all 'com.madeye.clojure.ampache.top100))
 
 (defn- restart [] ((.stop server) (reload) (.start server)))
@@ -81,11 +86,30 @@
   [m]
   (dissoc (global-clean-fn m) :enabled :rate :year :addition_time :size :bitrate :update_time :played :track :time :mode :file :mbid :catalog)
 )
+
+(defn- get-plays-for-album-link 
+  "Gets a link that shows the plays for a given album"
+  [albumid] 
+  (format "%s?album=%d" ctx-song-plays albumid)
+)
+
+(defn- add-links
+ "Adds any links required for the given result type"
+  [m]
+  (let [t (:type m)]
+    ; (pprint m)
+    (case t
+      :album
+      (conj m { :link (get-plays-for-album-link ( :id m )) })
+      m
+    )
+  )
+) 
  
 (defn- top-results
   "Default 'top tracks' function"
   ([filters group-fn clean-fn num-results]
-  (json-response-map 200 (get-body filters (map clean-fn (adb/top-result filters group-fn num-results)))))
+  (json-response-map 200 (get-body filters (map #(clean-fn (add-links %)) (adb/top-result filters group-fn num-results)))))
   ([filters group-fn num-results]
   (top-results filters group-fn global-clean-fn num-results))
 )
@@ -154,10 +178,10 @@
 
 (defroutes app*
     (GET "/" request "Welcome!")
-    (GET "/top-songs" {params :query-params} (top-results (get-filters params) adb/group-song (get-num-results params)))
-    (GET "/top-albums" {params :query-params} (top-results (get-filters params) adb/group-album (get-num-results params)))
-    (GET "/top-artists" {params :query-params} (top-results (get-filters params) adb/group-artist (get-num-results params)))
-    (GET "/song-plays" {params :query-params} (song-play-results (get-filters params)))
+    (GET ctx-top-songs {params :query-params} (top-results (get-filters params) adb/group-song (get-num-results params)))
+    (GET ctx-top-albums {params :query-params} (top-results (get-filters params) adb/group-album (get-num-results params)))
+    (GET ctx-top-artists {params :query-params} (top-results (get-filters params) adb/group-artist (get-num-results params)))
+    (GET ctx-song-plays {params :query-params} (song-play-results (get-filters params)))
 )
 
 (def app (compojure.handler/api app*))
