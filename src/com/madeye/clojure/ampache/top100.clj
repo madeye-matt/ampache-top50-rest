@@ -26,6 +26,13 @@
 (def ^:const ctx-top-artists "/top-artists")
 (def ^:const ctx-song-plays "/song-plays")
 
+(def ^:const prm-album-id "album")
+(def ^:const prm-artist-id "artist")
+(def ^:const prm-song-id "song")
+(def ^:const prm-start-time "start")
+(def ^:const prm-end-time "end")
+(def ^:const prm-period "period")
+
 (defn- reload [] (use :reload-all 'com.madeye.clojure.ampache.top100))
 
 (defn- restart [] ((.stop server) (reload) (.start server)))
@@ -89,18 +96,18 @@
 
 (defn- get-plays-for-album-link 
   "Gets a link that shows the plays for a given album"
-  [albumid] 
-  (format "%s?album=%d" ctx-song-plays albumid)
+  [albumid start end] 
+  (format "%s?%s=%d&%s=%s&%s=%s" ctx-top-songs prm-album-id albumid prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) )
 )
 
 (defn- add-links
  "Adds any links required for the given result type"
-  [m]
+  [filters m]
   (let [t (:type m)]
     ; (pprint m)
     (case t
       :album
-      (conj m { :link (get-plays-for-album-link ( :id m )) })
+      (conj m { :link (get-plays-for-album-link ( :id m ) ( :start filters) (:end filters) ) })
       m
     )
   )
@@ -109,7 +116,7 @@
 (defn- top-results
   "Default 'top tracks' function"
   ([filters group-fn clean-fn num-results]
-  (json-response-map 200 (get-body filters (map #(clean-fn (add-links %)) (adb/top-result filters group-fn num-results)))))
+  (json-response-map 200 (get-body filters (map #(clean-fn (add-links filters %)) (adb/top-result filters group-fn num-results)))))
   ([filters group-fn num-results]
   (top-results filters group-fn global-clean-fn num-results))
 )
@@ -132,7 +139,7 @@
 (defn- get-period-filter
   "Gets a date range from either the 'period' parameter (last-week last-month or ever) or the 'start' and 'end' parameters"
   [params filters]
-  (case (params "period")
+  (case (params prm-period)
     "last-week"
       (conj filters (c/get-date-range :last_week))
     "last-month"
@@ -140,8 +147,8 @@
     "ever"
       (conj filters (c/get-date-range :all_time))
     nil
-      (if-let [startstr (params "start")]
-        (if-let [endstr (params "end")]
+      (if-let [startstr (params prm-start-time)]
+        (if-let [endstr (params prm-end-time)]
           (conj filters { :start (tfmt/parse date-parser startstr) :end (tfmt/parse date-parser endstr) })
           ; Default to "last month" if no period specified
           (conj filters (c/get-date-range :last_month))
@@ -155,7 +162,7 @@
 (defn- get-artist-filter
   "Adds a filter on the specified artist to the supplied map"
   [params filters]
-  (if-let [artistid (params "artist")]
+  (if-let [artistid (params prm-artist-id)]
     (conj filters { :artist (read-string artistid) })
     filters
   )
@@ -164,7 +171,7 @@
 (defn- get-album-filter
   "Adds a filter on the specified album to the supplied map"
   [params filters]
-  (if-let [albumid (params "album")]
+  (if-let [albumid (params prm-album-id)]
     (conj filters { :album (read-string albumid) })
     filters
   )
