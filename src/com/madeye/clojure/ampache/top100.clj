@@ -94,21 +94,21 @@
   (dissoc (global-clean-fn m) :enabled :rate :year :addition_time :size :bitrate :update_time :played :track :time :mode :file :mbid :catalog)
 )
 
-(defn- get-plays-for-album-link 
+(defn- get-top-plays-link 
   "Gets a link that shows the plays for a given album"
-  [albumid start end] 
-  (format "%s?%s=%d&%s=%s&%s=%s" ctx-top-songs prm-album-id albumid prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) )
+  [param id start end] 
+  (format "%s?%s=%d&%s=%s&%s=%s" ctx-top-songs param id prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) )
 )
 
 (defn- add-links
  "Adds any links required for the given result type"
   [filters m]
-  (let [t (:type m)]
+  (let [t (:type m)
+        param (case t :album prm-album-id :artist prm-artist-id :song prm-song-id nil) ]
     ; (pprint m)
-    (case t
-      :album
-      (conj m { :link (get-plays-for-album-link ( :id m ) ( :start filters) (:end filters) ) })
+    (if (nil? param)
       m
+      (conj m { :link (get-top-plays-link param ( :id m ) ( :start filters) (:end filters) ) })
     )
   )
 ) 
