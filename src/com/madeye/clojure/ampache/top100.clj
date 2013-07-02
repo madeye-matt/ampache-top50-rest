@@ -72,19 +72,20 @@
 
 (defn- get-top-plays-link 
   "Gets a link that shows the plays for a given album"
-  [param id start end] 
-  (format "%s?%s=%d&%s=%s&%s=%s" ctx-top-songs param id prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) )
+  [context param id start end] 
+  (format "%s?%s=%d&%s=%s&%s=%s" context param id prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) )
 )
 
 (defn- add-links
  "Adds any links required for the given result type"
   [filters m]
   (let [t (:type m)
-        param (case t :album prm-album-id :artist prm-artist-id :song prm-song-id nil) ]
+        param (case t :album prm-album-id :artist prm-artist-id :song prm-song-id nil) 
+        context (case t :album ctx-top-albums :artist ctx-top-artists :song ctx-song-plays nil)]
     ; (pprint m)
     (if (nil? param)
       m
-      (conj m { :link (get-top-plays-link param ( :id m ) ( :start filters) (:end filters) ) })
+      (conj m { :link (get-top-plays-link context param ( :id m ) ( :start filters) (:end filters) ) })
     )
   )
 ) 
