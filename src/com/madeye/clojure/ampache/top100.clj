@@ -99,6 +99,7 @@
 (defn- song-play-results
   "Function for returning raw song plays in JSON"
   [filters]
+  (clojure.pprint/pprint filters)
   (json-response-map 200 (get-body filters (adb/find-song-listen filters)))
 )
 
@@ -152,10 +153,19 @@
   )
 )
 
+(defn- get-song-filter
+  "Adds a filter on the specified song to the supplied map"
+  [params filters]
+  (if-let [songid (params prm-song-id)]
+    (conj filters { :song.id (read-string songid) })
+    filters
+  )
+)
+
 (defn- get-filters
   "Gets the aggregate of all the specified filters from the params map"
   ([params] (get-filters params {}))
-  ([params filters] (get-period-filter params (get-artist-filter params (get-album-filter params filters))))
+  ([params filters] (get-period-filter params (get-artist-filter params (get-album-filter params (get-song-filter params filters)))))
 )
 
 (defroutes app*
