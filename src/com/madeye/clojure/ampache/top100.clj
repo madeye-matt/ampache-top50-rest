@@ -64,34 +64,10 @@
   { :filters filters :num-results (count result) :result result }
 )
 
-(defn- null-clean-fn
-  "Default function for cleaning results for display - just returns the supplied map"
-  [m]
-  m
-)
-
-(defn- global-clean-fn
-  "Function for cleaning results for display - should be applied to all types of result map" 
+(defn- remove-type
+  "Function for removing :type from supplied map"
   [m]
   (dissoc m :type)
-)
-
-(defn- artist-clean-fn
-  "Function for cleaning entries unneccessary for display from the artist result map"
-  [m]
-  (dissoc (global-clean-fn m) :mbid)
-)
- 
-(defn- album-clean-fn
-  "Function for cleaning entries unneccessary for display from the album result map"
-  [m]
-  (dissoc (global-clean-fn m) :disk :year :mbid)
-)
- 
-(defn- song-clean-fn
-  "Function for cleaning entries unneccessary for display from the song result map"
-  [m]
-  (dissoc (global-clean-fn m) :enabled :rate :year :addition_time :size :bitrate :update_time :played :track :time :mode :file :mbid :catalog)
 )
 
 (defn- get-top-plays-link 
@@ -115,10 +91,8 @@
  
 (defn- top-results
   "Default 'top tracks' function"
-  ([filters group-fn clean-fn num-results]
-  (json-response-map 200 (get-body filters (map #(clean-fn (add-links filters %)) (adb/top-result filters group-fn num-results)))))
   ([filters group-fn num-results]
-  (top-results filters group-fn global-clean-fn num-results))
+  (json-response-map 200 (get-body filters (map #(remove-type (add-links filters %)) (adb/top-result filters group-fn num-results)))))
 )
 
 (defn- song-play-results
