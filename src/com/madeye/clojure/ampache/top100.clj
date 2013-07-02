@@ -17,7 +17,7 @@
 (require '[com.madeye.clojure.ampache.ampachedb :as adb])
 
 ; Config related declares
-(declare config default-top use-full-urls server-port server)
+(declare config default-top use-full-urls base-url server-port server)
 
 (def date-formatter (tfmt/formatter "yyyy-MM-dd HH:mm:ss"))
 (def date-parser (tfmt/formatter "yyyy-MM-dd"))
@@ -55,7 +55,7 @@
   [status body]
   { :status status
     :headers { "Content-Type" "applciation/json" }
-    :body (json/write-str body :value-fn translate-json-values)
+    :body (json/write-str body :value-fn translate-json-values :escape-slash false )
   }
 )
 
@@ -75,9 +75,9 @@
   "Gets a link that shows the plays for a given album"
   [context param id start end] 
   (let [base-url (if use-full-urls
-                   (config :links.base-url)
+                   base-url
                    "")]
-    (format "%s%s?%s=%d&%s=%s&%s=%s" base-url context param id prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) )
+    (str base-url context (format "?%s=%d&%s=%s&%s=%s" param id prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) ))
   )
 )
 
@@ -192,6 +192,7 @@
   (def server-port (read-string (config :server-port)))
   (def default-top (read-string (config :default-top)))
   (def use-full-urls (read-string (config :links.use-full-urls)))
+  (def base-url (read-string (config :links.base-url)))
   (adb/initialise config-file)
   (def server (startserver server-port))
 )
