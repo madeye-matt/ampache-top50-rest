@@ -16,7 +16,8 @@
 (require '[com.madeye.clojure.common.common :as c])
 (require '[com.madeye.clojure.ampache.ampachedb :as adb])
 
-(declare default-top server-port server)
+; Config related declares
+(declare config default-top use-full-urls server-port server)
 
 (def date-formatter (tfmt/formatter "yyyy-MM-dd HH:mm:ss"))
 (def date-parser (tfmt/formatter "yyyy-MM-dd"))
@@ -73,7 +74,11 @@
 (defn- get-top-plays-link 
   "Gets a link that shows the plays for a given album"
   [context param id start end] 
-  (format "%s?%s=%d&%s=%s&%s=%s" context param id prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) )
+  (let [base-url (if use-full-urls
+                   (config :links.base-url)
+                   "")]
+    (format "%s%s?%s=%d&%s=%s&%s=%s" base-url context param id prm-start-time (tfmt/unparse date-parser start) prm-end-time (tfmt/unparse date-parser end) )
+  )
 )
 
 (defn- add-links
@@ -81,7 +86,7 @@
   [filters m]
   (let [t (:type m)
         param (case t :album prm-album-id :artist prm-artist-id :song prm-song-id nil) 
-        context (case t :album ctx-top-albums :artist ctx-top-artists :song ctx-song-plays nil)]
+        context (case t :album ctx-top-songs :artist ctx-top-songs :song ctx-song-plays nil)]
     ; (pprint m)
     (if (nil? param)
       m
@@ -99,7 +104,7 @@
 (defn- song-play-results
   "Function for returning raw song plays in JSON"
   [filters]
-  (clojure.pprint/pprint filters)
+  ;(clojure.pprint/pprint filters)
   (json-response-map 200 (get-body filters (adb/find-song-listen filters)))
 )
 
@@ -186,6 +191,7 @@
   (def config (c/load-props config-file))
   (def server-port (read-string (config :server-port)))
   (def default-top (read-string (config :default-top)))
+  (def use-full-urls (read-string (config :links.use-full-urls)))
   (adb/initialise config-file)
   (def server (startserver server-port))
 )
