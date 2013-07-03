@@ -140,7 +140,7 @@
   )
 )
 
-(defn- get-artist-filter
+(defn- get-artist-filter-old
   "Adds a filter on the specified artist to the supplied map"
   [params filters]
   (if-let [artistid (params prm-artist-id)]
@@ -149,7 +149,7 @@
   )
 )
 
-(defn- get-album-filter
+(defn- get-album-filter-old
   "Adds a filter on the specified album to the supplied map"
   [params filters]
   (if-let [albumid (params prm-album-id)]
@@ -158,13 +158,37 @@
   )
 )
 
-(defn- get-song-filter
+(defn- get-song-filter-old
   "Adds a filter on the specified song to the supplied map"
   [params filters]
   (if-let [songid (params prm-song-id)]
     (conj filters { :song.id (read-string songid) })
     filters
   )
+)
+
+(defn- get-filter
+  "Adds a filter to the supplied map"
+  [params filters param-name db-column]
+  (if-let [id (params param-name)]
+    (conj filters { db-column ( read-string id )})
+    filters
+  )
+)
+
+(defn- get-artist-filter
+  [params filters]
+  (get-filter params filters prm-artist-id :artist)
+)
+
+(defn- get-album-filter
+  [params filters]
+  (get-filter params filters prm-album-id :album)
+)
+
+(defn- get-song-filter
+  [params filters]
+  (get-filter params filters prm-song-id :song.id)
 )
 
 (defn- get-filters
