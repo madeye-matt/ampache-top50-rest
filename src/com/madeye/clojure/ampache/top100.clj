@@ -30,6 +30,7 @@
 (def ^:const prm-album-id "album")
 (def ^:const prm-artist-id "artist")
 (def ^:const prm-song-id "song")
+(def ^:const prm-user-id "user")
 (def ^:const prm-start-time "start")
 (def ^:const prm-end-time "end")
 (def ^:const prm-period "period")
@@ -176,25 +177,16 @@
   )
 )
 
-(defn- get-artist-filter
-  [params filters]
-  (get-filter params filters prm-artist-id :artist)
-)
-
-(defn- get-album-filter
-  [params filters]
-  (get-filter params filters prm-album-id :album)
-)
-
-(defn- get-song-filter
-  [params filters]
-  (get-filter params filters prm-song-id :song.id)
-)
+(def all-filters 
+  { prm-artist-id :artist.id
+    prm-album-id :album.id
+    prm-song-id :song.id 
+    prm-user-id :user })
 
 (defn- get-filters
   "Gets the aggregate of all the specified filters from the params map"
   ([params] (get-filters params {}))
-  ([params filters] (get-period-filter params (get-artist-filter params (get-album-filter params (get-song-filter params filters)))))
+  ([params filters] (get-period-filter params (reduce conj (map #(get-filter params filters % (all-filters %)) (keys all-filters)))))
 )
 
 (defroutes app*
