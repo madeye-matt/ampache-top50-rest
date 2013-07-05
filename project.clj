@@ -6,7 +6,7 @@
   :dependencies [
       [org.clojure/clojure "1.5.1"]
       [com.madeye.clojure.common/common "0.1.2"] 
-      [com.madeye.clojure.ampache/ampachedb "0.1.6"]
+      [com.madeye.clojure.ampache/ampachedb "0.1.7"]
       [ring "1.2.0-RC1"]
       [compojure "1.1.5"]
       [org.clojure/data.json "0.2.2"]

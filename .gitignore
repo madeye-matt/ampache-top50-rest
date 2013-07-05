@@ -1,3 +1,6 @@
 .lein-repl-history
 .lein-failures
 target
+.idea
+pom.xml.asc
+ampache-top100.iml
