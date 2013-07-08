@@ -6,14 +6,14 @@ A Clojure project for a REST interface to provide song play statistics for an Am
 
 leiningen
 
-    [com.madeye.clojure.ampache/ampache-top100 "0.1.0"]
+    [com.madeye.clojure.ampache/ampache-top100 "0.1.1"]
 
 maven
 
     <dependency>
       <groupId>com.madeye.clojure.ampache</groupId>
       <artifactId>ampache-top100</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.1</version>
     </dependency>
 
 ## Usage
@@ -52,7 +52,7 @@ ampache-top50-rest can then be run as any Leiningen application via lein:
 or as an uberjar:
 
     $ lein uberjar
-    $ java -jar target/ampache-top50-0.1.0-standalone.jar
+    $ java -jar target/ampache-top50-0.1.1-standalone.jar
 
 ## License
 
