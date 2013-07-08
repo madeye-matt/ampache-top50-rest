@@ -1,4 +1,4 @@
-(ns com.madeye.clojure.ampache.top100
+(ns com.madeye.clojure.ampache.top50
   (:use [compojure.core :only (GET PUT POST defroutes)])
   (:require (compojure handler route)
             [ring.util.response :as response])
@@ -35,7 +35,7 @@
 (def ^:const prm-end-time "end")
 (def ^:const prm-period "period")
 
-(defn- reload [] (use :reload-all 'com.madeye.clojure.ampache.top100))
+(defn- reload [] (use :reload-all 'com.madeye.clojure.ampache.top50))
 
 (defn- restart [] ((.stop server) (reload) (.start server)))
 

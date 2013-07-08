@@ -3,7 +3,7 @@
   <groupId>com.madeye.clojure.ampache</groupId>
   <artifactId>ampache-top100</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <name>ampache-top100</name>
   <description>A Clojure project for a REST interface to provide song play statistics for an Ampache server (for example, top 10 tracks of the last week or top 100 albums of all time)</description>
   <url>https://github.com/madeye-matt/ampache-top50-rest</url>
@@ -16,7 +16,7 @@
   <scm>
     <connection>scm:git:git://github.com/madeye-matt/ampache-top50-rest.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/madeye-matt/ampache-top50-rest.git</developerConnection>
-    <tag>a99134aa5ec9c5bfa49cb75c8f2580c22834b74c</tag>
+    <tag>d7fbe207748a3743d29325477852f1dc48cb9ed6</tag>
     <url>https://github.com/madeye-matt/ampache-top50-rest</url>
   </scm>
   <build>
@@ -74,7 +74,7 @@
     <dependency>
       <groupId>com.madeye.clojure.ampache</groupId>
       <artifactId>ampachedb</artifactId>
-      <version>0.1.6</version>
+      <version>0.1.8</version>
     </dependency>
     <dependency>
       <groupId>ring</groupId>
