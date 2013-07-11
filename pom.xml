@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.madeye.clojure.ampache</groupId>
-  <artifactId>ampache-top100</artifactId>
+  <artifactId>ampache-top50</artifactId>
   <packaging>jar</packaging>
   <version>0.1.1</version>
-  <name>ampache-top100</name>
+  <name>ampache-top50</name>
   <description>A Clojure project for a REST interface to provide song play statistics for an Ampache server (for example, top 10 tracks of the last week or top 100 albums of all time)</description>
   <url>https://github.com/madeye-matt/ampache-top50-rest</url>
   <licenses>
@@ -16,7 +16,7 @@
   <scm>
     <connection>scm:git:git://github.com/madeye-matt/ampache-top50-rest.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/madeye-matt/ampache-top50-rest.git</developerConnection>
-    <tag>d7fbe207748a3743d29325477852f1dc48cb9ed6</tag>
+    <tag>338c2f3793b546c583f3bd6f5f52be5039b7e8ee</tag>
     <url>https://github.com/madeye-matt/ampache-top50-rest</url>
   </scm>
   <build>

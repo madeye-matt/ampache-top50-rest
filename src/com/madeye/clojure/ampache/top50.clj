@@ -55,7 +55,7 @@
   "Returns a response map with the specified status and the body parameter JSONified"
   [status body]
   { :status status
-    :headers { "Content-Type" "applciation/json" }
+    :headers { "Content-Type" "application/json" }
     :body (json/write-str body :value-fn translate-json-values :escape-slash false )
   }
 )
