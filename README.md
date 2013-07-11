@@ -6,14 +6,14 @@ A Clojure project for a REST interface to provide song play statistics for an Am
 
 leiningen
 
-    [com.madeye.clojure.ampache/ampache-top100 "0.1.1"]
+    [com.madeye.clojure.ampache/ampache-top100 "0.1.2"]
 
 maven
 
     <dependency>
       <groupId>com.madeye.clojure.ampache</groupId>
       <artifactId>ampache-top100</artifactId>
-      <version>0.1.1</version>
+      <version>0.1.2</version>
     </dependency>
 
 ## Usage
